@@ -2,7 +2,7 @@ const express = require('express');
 
 const app = express();
 
-//Used to parse JSON bodies
+// Used to parse JSON bodies
 app.use(express.json());
 app.use(express.urlencoded());
 
@@ -11,7 +11,7 @@ const PORT = 9001;
 
 
 // START *** Settings headers to allow cross domain requests
-app.all('*', function(req, res, next) {
+app.all('*', (req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET');
   res.header('Access-Control-Allow-Methods', 'POST');
@@ -39,11 +39,11 @@ Example call:
       res.json().then(json => console.log({json}))
   })
 */
-app.post('/testpost', function (req, res) {
-  const name = req.body.name;
+app.post('/testpost', (req, res) => {
+  const { name } = req.body;
 
-  console.log({name});
-  res.send({res: `Name is: ${name}`});
+  console.log({ name });
+  res.send({ res: `Name is: ${name}` });
 });
 
 // make the server listen to requests
