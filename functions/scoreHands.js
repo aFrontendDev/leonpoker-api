@@ -27,11 +27,15 @@ const hasFlush = cards => {
 };
 
 const getCardsBySuit = cards => {
-  if (!cards || typeof cards === 'undefined' || !Array.isArray(cards)) {
+  if (!cards || typeof cards === 'undefined' || !Array.isArray(cards) || cards.length < 1) {
     return null;
   }
 
-  return cards.reduce( (cardsBySuit, card) => {
+  return cards.reduce((cardsBySuit, card) => {
+    if (!card || typeof card !== 'string' || card.length < 2) {
+      return cardsBySuit;
+    }
+
     const suit = card.substr(0,1);
 
     if (cardsBySuit.hasOwnProperty(suit)) {
@@ -45,7 +49,7 @@ const getCardsBySuit = cards => {
 }
 
 const convertToNumbers = cards => {
-  if (!cards || typeof cards === 'undefined' || !Array.isArray(cards)) {
+  if (!cards || typeof cards === 'undefined' || !Array.isArray(cards) || cards.length < 1) {
     return null;
   }
 
@@ -123,7 +127,7 @@ const hasRoyalStraight = cards => {
 }
 
 const getFlushCards = cards => {
-  if (!cards || typeof cards === 'undefined' || !Array.isArray(cards)) {
+  if (!cards || typeof cards === 'undefined' || !Array.isArray(cards) || cards.length < 1) {
     return null;
   }
 
@@ -184,5 +188,7 @@ module.exports = {
   hasStraightFlush,
   getCardsBySuit,
   hasRoyalStraight,
-  hasRoyalFlush
+  hasRoyalFlush,
+  convertToNumbers,
+  getFlushCards
 };
