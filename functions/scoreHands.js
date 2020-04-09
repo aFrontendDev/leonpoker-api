@@ -1,12 +1,39 @@
 
+const cardsAsExpected = cards => {
+  if (!cards || typeof cards === 'undefined' || !Array.isArray(cards) || cards.length < 1) {
+    return false;
+  }
+
+  return true;
+};
+
+const cardAsExpected = card => {
+  if (!card || typeof card !== 'string' || card.length < 2) {
+    return false;
+  }
+
+  return true;
+};
+
+convertCardToNumber = card => {
+  if (!card || typeof card !== 'string' || card.length < 2) {
+    return 0;
+  }
+
+  let num = card.substr(1, card.length);
+  num = parseInt(num, 10);
+  num = isNaN(num) ? 0 : num;
+  return num;
+}
+
 const hasFlush = cards => {
-  if (!cards || typeof cards === 'undefined' || !Array.isArray(cards)) {
+  if (!cardsAsExpected(cards)) {
     return false;
   }
 
   const suits = [];
   cards.forEach(card => {
-    if (!card || typeof card !== 'string' || card.length < 2) {
+    if (!cardAsExpected(card)) {
       return;
     }
 
@@ -27,12 +54,12 @@ const hasFlush = cards => {
 };
 
 const getCardsBySuit = cards => {
-  if (!cards || typeof cards === 'undefined' || !Array.isArray(cards) || cards.length < 1) {
+  if (!cardsAsExpected(cards)) {
     return null;
   }
 
   return cards.reduce((cardsBySuit, card) => {
-    if (!card || typeof card !== 'string' || card.length < 2) {
+    if (!cardAsExpected(card)) {
       return cardsBySuit;
     }
 
@@ -46,27 +73,24 @@ const getCardsBySuit = cards => {
 
     return cardsBySuit;
   }, {});
-}
+};
 
 const convertToNumbers = cards => {
-  if (!cards || typeof cards === 'undefined' || !Array.isArray(cards) || cards.length < 1) {
+  if (!cardsAsExpected(cards)) {
     return null;
   }
 
   return cards.map(card => {
-    if (!card || typeof card !== 'string' || card.length < 2) {
+    if (!cardAsExpected(card)) {
       return 0;
     }
 
-    let num = card.substr(1, card.length);
-    num = parseInt(num, 10);
-    num = isNaN(num) ? 0 : num;
-    return num;
+    return convertCardToNumber(card);
   });
-}
+};
 
 const hasStraight = cards => {
-  if (!cards || typeof cards === 'undefined' || !Array.isArray(cards) || cards.length < 1) {
+  if (!cardsAsExpected(cards)) {
     return false;
   }
 
@@ -104,7 +128,7 @@ const hasStraight = cards => {
 };
 
 const hasRoyalStraight = cards => {
-  if (!cards || typeof cards === 'undefined' || !Array.isArray(cards) || cards.length < 1) {
+  if (!cardsAsExpected(cards)) {
     return false;
   }
 
@@ -124,10 +148,10 @@ const hasRoyalStraight = cards => {
   const hasTen = cardNums.has(10);
 
   return hasAce && hasKing && hasQueen && hasJack && hasTen;
-}
+};
 
 const getFlushCards = cards => {
-  if (!cards || typeof cards === 'undefined' || !Array.isArray(cards) || cards.length < 1) {
+  if (!cardsAsExpected(cards)) {
     return null;
   }
 
@@ -144,10 +168,10 @@ const getFlushCards = cards => {
 
     return flush;
   }, null);
-}
+};
 
 const hasStraightFlush = cards => {
-  if (!cards || typeof cards === 'undefined' || !Array.isArray(cards)) {
+  if (!cardsAsExpected(cards)) {
     return false;
   }
 
@@ -162,10 +186,10 @@ const hasStraightFlush = cards => {
   }
 
   return hasStraight(cardsInFlush);
-}
+};
 
 const hasRoyalFlush = cards => {
-  if (!cards || typeof cards === 'undefined' || !Array.isArray(cards)) {
+  if (!cardsAsExpected(cards)) {
     return false;
   }
 
@@ -180,6 +204,27 @@ const hasRoyalFlush = cards => {
   }
 
   return hasRoyalStraight(cardsInFlush);
+};
+
+const getMatchingCardRanks = cards => {
+  if (!cardsAsExpected(cards)) {
+    return false;
+  }
+
+  return cards.reduce((cardsByNumbers, card) => {
+    if (!cardAsExpected(card)) {
+      return matchingCards;
+    }
+
+    const cardNum = convertCardToNumber(card);
+    if (cardsByNumbers.hasOwnProperty(cardNum)) {
+      cardsByNumbers[cardNum].push(card);
+    } else {
+      cardsByNumbers[cardNum] = [card];
+    }
+
+    return cardsByNumbers;
+  }, {});
 }
 
 module.exports = {
@@ -190,5 +235,6 @@ module.exports = {
   hasRoyalStraight,
   hasRoyalFlush,
   convertToNumbers,
-  getFlushCards
+  getFlushCards,
+  getMatchingCardRanks,
 };
