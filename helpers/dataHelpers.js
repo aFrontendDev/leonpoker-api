@@ -61,10 +61,21 @@ const convertToNumbers = cards => {
     return convertCardToNumber(card);
   });
 };
+
+const forceArray = data => {
+  if (!data || typeof data === 'undefined') {
+    return [];
+  }
+
+  const dataIsArray = Array.isArray(data);
+  return dataIsArray ? data : [data];
+};
+
 module.exports = {
   convertToNumbers,
   sortObject,
   convertCardToNumber,
   cardAsExpected,
   cardsAsExpected,
+  forceArray
 };

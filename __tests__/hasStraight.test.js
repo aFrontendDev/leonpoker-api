@@ -13,41 +13,71 @@ const notStraightD = null;
 const notStraightE = 'not an array';
 
 test('recognises straight A', () => {
-  expect(hasStraight(straightA)).toBe(true);
+  expect(hasStraight(straightA)).toEqual({
+    isStraight: true,
+    cards: [2, 3, 4, 5, 6]
+  });
 });
 
 test('recognises straight B', () => {
-  expect(hasStraight(straightB)).toBe(true);
+  expect(hasStraight(straightB)).toEqual({
+    isStraight: true,
+    cards: [2, 3, 4, 5, 6]
+  });
 });
 
 test('recognises straight C', () => {
-  expect(hasStraight(straightC)).toBe(true);
+  expect(hasStraight(straightC)).toEqual({
+    isStraight: true,
+    cards: [2, 3, 4, 5, 6]
+  });
 });
 
 test('recognises straight D', () => {
-  expect(hasStraight(straightD)).toBe(true);
+  expect(hasStraight(straightD)).toEqual({
+    isStraight: true,
+    cards: [2, 3, 4, 5, 6]
+  });
 });
 
 test('recognises straight E', () => {
-  expect(hasStraight(straightE)).toBe(true);
+  expect(hasStraight(straightE)).toEqual({
+    isStraight: true,
+    cards: [2, 3, 4, 5, 6]
+  });
 });
 
 test('recognises not a straight A', () => {
-  expect(hasStraight(notStraightA)).toBe(false);
+  expect(hasStraight(notStraightA)).toEqual({
+    isStraight: false,
+    cards: null
+  });
 });
 
 test('recognises not a straight B', () => {
-  expect(hasStraight(notStraightB)).toBe(false);
+  expect(hasStraight(notStraightB)).toEqual({
+    isStraight: false,
+    cards: null
+  });
 });
 
 test('recognises not a straight C', () => {
-  expect(hasStraight(notStraightC)).toBe(false);
+  expect(hasStraight(notStraightC)).toEqual({
+    isStraight: false,
+    cards: null
+  });
 });
 
 test('recognises not a straight D', () => {
-  expect(hasStraight(notStraightD)).toBe(false);
+  expect(hasStraight(notStraightD)).toEqual({
+    isStraight: false,
+    cards: null
+  });
 });
 
 test('recognises not a straight E', () => {
-  expect(hasStraight(notStraightE)).toBe(false);
+  expect(hasStraight(notStraightE)).toEqual({
+    isStraight: false,
+    cards: null
+  });
 });

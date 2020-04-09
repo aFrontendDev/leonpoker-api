@@ -2,13 +2,19 @@ const { cardsAsExpected, cardAsExpected, convertCardToNumber, sortObject, conver
 
 const hasFlush = cards => {
   if (!cardsAsExpected(cards)) {
-    return false;
+    return {
+      isFlush: false,
+      cards: null
+    };
   }
 
   const suits = [];
   cards.forEach(card => {
     if (!cardAsExpected(card)) {
-      return;
+      return {
+        isFlush: false,
+        cards: null
+      };
     }
 
     const suit = card.substr(0, 1);
@@ -21,10 +27,17 @@ const hasFlush = cards => {
   const diamondsFlush = suits.filter(x => x === 'd').length >= 5;
 
   if (heartsFlush || clubsFlush || spadesFlush || diamondsFlush) {
-    return true;
+    const cardsInFlush = getFlushCards(cards);
+    return {
+      isFlush: true,
+      cards: cardsInFlush
+    };
   }
 
-  return false;
+  return {
+    isFlush: false,
+    cards: null
+  };
 };
 
 const getCardsBySuit = cards => {
@@ -51,7 +64,10 @@ const getCardsBySuit = cards => {
 
 const hasStraight = cards => {
   if (!cardsAsExpected(cards)) {
-    return false;
+    return {
+      isStraight: false,
+      cards: null
+    };
   }
 
   let cardNums = convertToNumbers(cards);
@@ -63,6 +79,7 @@ const hasStraight = cards => {
   cardNums = new Set(cardNums);
   let next = 0;
   let seqLength = 0;
+  let numArr = [];
 
   cardNums.forEach(num => {
     if (seqLength >= 5) {
@@ -72,8 +89,10 @@ const hasStraight = cards => {
     if (seqLength > 0) {
       if (num === next) {
         seqLength++;
+        numArr.push(num);
       } else {
         seqLength = 1;
+        numArr = [num];
       }
 
       next = num + 1;
@@ -82,9 +101,21 @@ const hasStraight = cards => {
 
     seqLength++;
     next = num + 1;
+    numArr.push(num);
   });
 
-  return seqLength >= 5;
+  const isAStraight = seqLength >= 5;
+  if (!isAStraight) {
+    return {
+      isStraight: false,
+      cards: null
+    };
+  }
+
+  return {
+    isStraight: true,
+    cards: numArr
+  };
 };
 
 const hasRoyalStraight = cards => {
@@ -132,20 +163,35 @@ const getFlushCards = cards => {
 
 const hasStraightFlush = cards => {
   if (!cardsAsExpected(cards)) {
-    return false;
+    return {
+      isStraightFlush: false,
+      cards: null
+    };
   }
 
   const containsFlush = hasFlush(cards);
   if (!containsFlush) {
-    return false;
+    return {
+      isStraightFlush: false,
+      cards: null
+    };
   }
 
   const cardsInFlush = getFlushCards(cards);
   if (!cardsInFlush) {
-    return false;
+    return {
+      isStraightFlush: false,
+      cards: null
+    };
   }
 
-  return hasStraight(cardsInFlush);
+  const isStraightObj = hasStraight(cardsInFlush);
+  const { isStraight } = isStraightObj || {};
+
+  return {
+    isStraightFlush: isStraight,
+    cards: cardsInFlush
+  };
 };
 
 const hasRoyalFlush = cards => {
@@ -189,6 +235,71 @@ const getMatchingCardRanks = cards => {
   return sortObject(cardsByRanks);
 };
 
+const getMatchingRankHands = cards => {
+  if (!cards || typeof cards !== 'object') {
+    return {
+      four,
+      triple,
+      pair
+    };
+  }
+
+  const keys = Object.keys(cards);
+  if (keys.length < 1) {
+    return {
+      four,
+      triple,
+      pair
+    };
+  }
+
+  const four = [];
+  const triple = [];
+  const pair = [];
+
+  for (const property in cards) {
+    const cardsMatch = cards[property];
+    const count = cardsMatch.length;
+    const rank = typeof property === 'number' ? property : parseInt(property, 10);
+
+    if (count === 4) {
+      four.push({cards: cardsMatch, value: rank});
+    }
+
+    if (count === 3) {
+      triple.push({cards: cardsMatch, value: rank});
+    }
+
+    if (count === 2) {
+      pair.push({cards: cardsMatch, value: rank});
+    }
+  }
+
+  return {
+    four,
+    triple,
+    pair
+  };
+};
+
+const getMatchingHands = matchingHands => {
+  const { four, triple, pair } = matchingHands || {};
+
+  const hasFourOfAKind = four.length > 0;
+  const hasThreeOfAKind = triple.length > 0;
+  const hasTwoPair = pair.length > 1;
+  const hasPair = pair.length > 0;
+  const hasFullHouse = hasThreeOfAKind && hasPair;
+
+  return {
+    hasFourOfAKind,
+    hasThreeOfAKind,
+    hasTwoPair,
+    hasPair,
+    hasFullHouse
+  }
+};
+
 module.exports = {
   hasFlush,
   hasStraight,
@@ -198,4 +309,6 @@ module.exports = {
   hasRoyalFlush,
   getFlushCards,
   getMatchingCardRanks,
+  getMatchingRankHands,
+  getMatchingHands,
 };

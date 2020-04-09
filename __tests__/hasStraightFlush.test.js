@@ -10,29 +10,50 @@ const notStraightD = null;
 const notStraightE = 'not an array';
 
 test('recognises straight flush A', () => {
-  expect(hasStraightFlush(straightFlushA)).toBe(true);
+  expect(hasStraightFlush(straightFlushA)).toEqual({
+    cards: ["h2", "h10", "h7", "h9", "h8", "h6"],
+    isStraightFlush: true
+  });
 });
 
 test('recognises straight flush B', () => {
-  expect(hasStraightFlush(straightFlushB)).toBe(true);
+  expect(hasStraightFlush(straightFlushB)).toEqual({
+    cards: ["c10", "c12", "c14", "c13", "c11"],
+    isStraightFlush: true
+  });
 });
 
 test('recognises not straight flush A', () => {
-  expect(hasStraightFlush(notStraightA)).toBe(false);
+  expect(hasStraightFlush(notStraightA)).toEqual({
+    isStraightFlush: false,
+    cards: null
+  });
 });
 
 test('recognises not straight flush B', () => {
-  expect(hasStraightFlush(notStraightB)).toBe(false);
+  expect(hasStraightFlush(notStraightB)).toEqual({
+    isStraightFlush: false,
+    cards: null
+  });
 });
 
 test('recognises not straight flush C', () => {
-  expect(hasStraightFlush(notStraightC)).toBe(false);
+  expect(hasStraightFlush(notStraightC)).toEqual({
+    isStraightFlush: false,
+    cards: null
+  });
 });
 
 test('recognises not straight flush D', () => {
-  expect(hasStraightFlush(notStraightD)).toBe(false);
+  expect(hasStraightFlush(notStraightD)).toEqual({
+    isStraightFlush: false,
+    cards: null
+  });
 });
 
 test('recognises not straight flush E', () => {
-  expect(hasStraightFlush(notStraightE)).toBe(false);
+  expect(hasStraightFlush(notStraightE)).toEqual({
+    isStraightFlush: false,
+    cards: null
+  });
 });
