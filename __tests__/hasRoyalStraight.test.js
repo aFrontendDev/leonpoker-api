@@ -1,4 +1,4 @@
-const { hasRoyalStraight } = require('../functions/scoreHands');
+const { hasRoyalStraight } = require('../functions/pokerHands');
 
 const hasRoyalStraightA = ['h2', 'c10', 'c12', 'd5', 'c14', 'c13', 'c11'];
 

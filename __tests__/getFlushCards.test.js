@@ -1,4 +1,4 @@
-const { getFlushCards } = require('../functions/scoreHands');
+const { getFlushCards } = require('../functions/pokerHands');
 
 const FlushA = ['h2', 'c10', 'c12', 'd5', 'c14', 'c13', 'c11'];
 

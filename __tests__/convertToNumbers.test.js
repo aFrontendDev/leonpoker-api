@@ -1,4 +1,4 @@
-const { convertToNumbers } = require('../functions/scoreHands');
+const { convertToNumbers } = require('../helpers/dataHelpers');
 
 const cardsA = ['h2', 'h3', 'h4', 'h5', 'h6', 'c2', 'c3'];
 const cardsB = ['c5', 'd2', 'd3', 's4', 's5', 'h6', 'c2'];

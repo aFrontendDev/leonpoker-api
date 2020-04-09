@@ -1,4 +1,4 @@
-const { hasStraight } = require('../functions/scoreHands');
+const { hasStraight } = require('../functions/pokerHands');
 
 const straightA = ['h2', 'h3', 'h4', 'h5', 'h6', 'c2', 'c3'];
 const straightB = ['c5', 'h2', 'h3', 'h4', 'h5', 'h6', 'c2'];

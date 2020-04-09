@@ -1,4 +1,4 @@
-const { getMatchingCardRanks } = require('../functions/scoreHands');
+const { getMatchingCardRanks } = require('../functions/pokerHands');
 
 const cardsA = ['h2', 'c10', 'c12', 'd5', 'c14', 'c13', 'c11']; // no matches
 const cardsB = ['h2', 'c2', 'c12', 'd2', 'c14', 's2', 'c11']; // 4 same
@@ -91,7 +91,7 @@ test('sorts cards C', () => {
 });
 
 test('sorts cards D', () => {
-  expect(getMatchingCardRanks(cardsD)).toEqual(resultD);
+  expect(getMatchingCardRanks(cardsD)).toMatchObject(resultD);
 });
 
 

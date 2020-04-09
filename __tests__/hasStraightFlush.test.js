@@ -1,4 +1,4 @@
-const { hasStraightFlush } = require('../functions/scoreHands');
+const { hasStraightFlush } = require('../functions/pokerHands');
 
 const straightFlushA = ['h2', 'h10', 'h7', 'c5', 'h9', 'h8', 'h6'];
 const straightFlushB = ['h2', 'c10', 'c12', 'd5', 'c14', 'c13', 'c11'];

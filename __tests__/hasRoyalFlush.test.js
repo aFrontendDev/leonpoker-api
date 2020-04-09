@@ -1,4 +1,4 @@
-const { hasRoyalFlush } = require('../functions/scoreHands');
+const { hasRoyalFlush } = require('../functions/pokerHands');
 
 const royalFlushA = ['h2', 'c10', 'c12', 'd5', 'c14', 'c13', 'c11'];
 
