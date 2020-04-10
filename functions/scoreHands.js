@@ -1,4 +1,4 @@
-const { cardsAsExpected, cardAsExpected, convertCardToNumber, sortObject, convertToNumbers, forceArray } = require('../helpers/dataHelpers');
+const { cardsAsExpected, convertToNumbers, forceArray } = require('../helpers/dataHelpers');
 const {
   hasFlush,
   hasStraight,
@@ -37,7 +37,7 @@ const calculateCardTotal = cards => {
   return cardNumbers.reduce((total, number) => {
     return total + number;
   }, 0);
-}
+};
 
 const getTopRankedhands = rankHands => {
   const handsArr = forceArray(rankHands);
@@ -51,26 +51,32 @@ const getTopRankedhands = rankHands => {
   }
 
   return [handsDesc[0], handsDesc[1]];
-}
+};
 
 const getBestHand = cards => {
   if (!cardsAsExpected(cards)) {
     return null;
   }
+
   let score = 0;
   let total = 0;
   let switchCards = null;
 
   const royalFlush = hasRoyalFlush(cards);
+
   const straightFlush = hasStraightFlush(cards);
   const { isStraightFlush, cards: straightFlushCards } = straightFlush || {};
+
   const flush = hasFlush(cards);
   const { isFlush, cards: flushCards } = flush || {};
+
   const straight = hasStraight(cards);
   const { isStraight, cards: straightCards } = straight || {};
+
   const cardsByRank = getMatchingCardRanks(cards);
   const matchingRankHands = getMatchingRankHands(cardsByRank);
   const { four, triple, pair } = matchingRankHands || {};
+
   const matchingHands = getMatchingHands(matchingRankHands);
   const {
     hasFourOfAKind,
@@ -79,6 +85,7 @@ const getBestHand = cards => {
     hasPair,
     hasFullHouse
   } = matchingHands || {};
+
   const highestCard = getHighestCard(cardsByRank);
 
   const topHand = {
@@ -95,21 +102,25 @@ const getBestHand = cards => {
   };
 
   switch(true) {
+
     case royalFlush:
       score = 1000;
       topHand.royalFlush = true;
       break;
+
     case isStraightFlush:
       total = calculateCardTotal(straightFlushCards);
       score = 380 + total;
       topHand.straightFlush = true;
       break;
+
     case hasFourOfAKind:
       switchCards = getTopRankedhands(four);
       total = calculateCardTotal(cards);
       score = 324 + total;
       topHand.fourOfAKind = true;
       break;
+
     case hasFullHouse:
       const cardsTriple = getTopRankedhands(triple);
       const cardsPairs = getTopRankedhands(pair);
@@ -119,11 +130,13 @@ const getBestHand = cards => {
       score = 256  + total;
       topHand.fullHouse = true;
       break;
+
     case isFlush:
       total = calculateCardTotal(flushCards);
       score = 196 + total;
       topHand.flush = true;
       break;
+
     case isStraight:
       total = straightCards.reduce((totalSum, number) => {
         return totalSum + number;
@@ -131,12 +144,14 @@ const getBestHand = cards => {
       score = 136 + total;
       topHand.straight = true;
       break;
+
     case hasThreeOfAKind:
       switchCards = getTopRankedhands(triple);
       total = calculateCardTotal(switchCards[0].cards);
       score = 94 + total;
       topHand.threeOfAKind = true;
       break;
+
     case hasTwoPair:
       switchCards = getTopRankedhands(pair);
       const totalA = calculateCardTotal(switchCards[0].cards);
@@ -145,6 +160,7 @@ const getBestHand = cards => {
       score = 42 + total;
       topHand.twoPair = true;
       break;
+
     case hasPair:
       switchCards = getTopRankedhands(pair);
       total = calculateCardTotal(switchCards[0].cards);
@@ -162,7 +178,7 @@ const getBestHand = cards => {
     topHand,
     highestCard
   };
-}
+};
 
 module.exports = {
   getBestHand,

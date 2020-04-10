@@ -1,6 +1,5 @@
 const { getBestHand } = require('../functions/scoreHands');
 
-
 const cardsA = ['h2', 'c10', 'c12', 'd5', 'c14', 'c13', 'c11']; // royal flush
 const cardsB = ['h2', 'h3', 'h4', 'h5', 'h6', 'c13', 'c11']; // straight flush
 const cardsC = ['h2', 'c2', 'd2', 's2', 'h6', 'c13', 'c11']; // 4 of a kind
