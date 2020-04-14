@@ -1,4 +1,5 @@
 const express = require('express');
+const { getWinner } = require("../functions/poker");
 
 const app = express();
 
@@ -23,6 +24,13 @@ app.all('*', (req, res, next) => {
 // create a route for the app
 app.get('/', (req, res) => {
   res.send('Hello World');
+});
+
+// testing only
+app.post('/getwinner', (req, res) => {
+  const { tableCards, hands } = req.body;
+  const result = getWinner(tableCards, hands)
+  res.send(result);
 });
 
 

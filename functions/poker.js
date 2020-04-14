@@ -1,5 +1,5 @@
 const { getBestHand } =  require('../functions/scoreHands');
-const { forceArray, convertToNumbers } = require('../helpers/dataHelpers');
+const { forceArray, convertToNumbers, getRandomInt, removeItemFromArr } = require('../helpers/dataHelpers');
 
 // FUNCTION checkHands
 // creates array of strings for the cards
@@ -36,7 +36,7 @@ const getTopHands = (cards, sortby) => {
   return bestHands;
 };
 
-// FUNCTION checkHands
+// FUNCTION getWinner
 // tableCards: array of strings
 // ['h4', 'd2', 'c8', 's15', 'h12']
 // hands: array of objects
@@ -98,9 +98,152 @@ const getWinner = (tableCards, hands) => {
     draw: true,
     hand: bestHandByKicker
   };
-}
+};
+
+const getPlayersCards = (player, cards) => {
+  // get randomCard
+  const highestCardIndex = cards.length - 1;
+  const cardIndex = getRandomInt(0, highestCardIndex);
+  const card = cards[cardIndex];
+
+  // Add card to players hand
+  if (player.hasOwnProperty('hand')) {
+    player['hand'].push(card);
+  } else {
+    player['hand'] = [card];
+  }
+
+  // remove card from pack of cards
+  removeItemFromArr(cards, cardIndex);
+
+  return player;
+};
+
+// FUNCTION dealHands
+// Cards: array of strings
+// ['h4', 'd2', 'c8', 's15', 'h12']
+// Players: array of objects
+// [{user: 123}]
+const dealHands = (cards, players) => {
+  const cardsArr = forceArray(cards);
+  const playersArr = forceArray(players);
+
+  if (!cardsArr || cardsArr.length < 1 || !playersArr || playersArr.length < 1) {
+    return null;
+  }
+
+  // first deal
+  let updatedPlayers = playersArr.map(player => getPlayersCards(player, cardsArr));
+
+  // second deal
+  updatedPlayers = playersArr.map(player => getPlayersCards(player, cardsArr));
+
+  return {
+    players: updatedPlayers,
+    cards: cardsArr
+  };
+};
+
+// FUNCTION getCards
+// Cards: array of strings
+// ['h4', 'd2', 'c8', 's15', 'h12']
+// Amount: int
+// 3
+const getCards = (cards, amount) => {
+  const cardsArr = forceArray(cards);
+  if (!cardsArr || cardsArr.length < 1) {
+    return null;
+  }
+
+  let requestedCards = [];
+  for (let i = 0; i < amount; i++) {
+    const highestCardIndex = cardsArr.length - 1;
+    const cardIndex = getRandomInt(0, highestCardIndex);
+    const card = cardsArr[cardIndex];
+    requestedCards.push(card);
+
+    // remove card from pack of cards
+    removeItemFromArr(cardsArr, cardIndex);
+  }
+
+  return {
+    cards: cardsArr,
+    requestedCards,
+  }
+};
+
+// FUNCTION getTableCards
+// Cards: array of strings
+// ['h4', 'd2', 'c8', 's15', 'h12']
+// TableCards: array of strings (could be empty)
+// [] || ['h2', 's5', 'd12']
+const getTableCards = (cards, tableCards, numberOfCards) => {
+  const cardsArr = forceArray(cards);
+  const tableCardsArr = forceArray(tableCards);
+  if (!cardsArr || cardsArr.length < 1) {
+    return null;
+  }
+
+  const updatedCards = getCards(cardsArr, numberOfCards);
+  const { cards: remainingCards, requestedCards } = updatedCards || {};
+
+  return {
+    cards: remainingCards,
+    tableCards: [...tableCardsArr, ...requestedCards]
+  }
+};
+
+// FUNCTION getFlopCards
+// Cards: array of strings
+// ['h4', 'd2', 'c8', 's15', 'h12']
+// TableCards: array of strings, should be empty
+// []
+const getFlopCards = (cards, tableCards) => {
+  const cardsArr = forceArray(cards);
+  const tableCardsArr = forceArray(tableCards);
+  if (!cardsArr || cardsArr.length < 1) {
+    return null;
+  }
+
+  return getTableCards(cardsArr, tableCardsArr, 3);
+};
+
+// FUNCTION getTurnCard
+// Cards: array of strings
+// ['h4', 'd2', 'c8', 's15', 'h12']
+// TableCards: array of strings, should be empty
+// []
+const getTurnCard = (cards, tableCards) => {
+  const cardsArr = forceArray(cards);
+  const tableCardsArr = forceArray(tableCards);
+  if (!cardsArr || cardsArr.length < 1) {
+    return null;
+  }
+
+  return getTableCards(cardsArr, tableCardsArr, 1);
+};
+
+// FUNCTION getRiverCard
+// Cards: array of strings
+// ['h4', 'd2', 'c8', 's15', 'h12']
+// TableCards: array of strings, should be empty
+// []
+const getRiverCard = (cards, tableCards) => {
+  const cardsArr = forceArray(cards);
+  const tableCardsArr = forceArray(tableCards);
+  if (!cardsArr || cardsArr.length < 1) {
+    return null;
+  }
+
+  return getTableCards(cardsArr, tableCardsArr, 1);
+};
+
 
 module.exports = {
   makePack,
   getWinner,
+  dealHands,
+  getFlopCards,
+  getTurnCard,
+  getRiverCard,
 };

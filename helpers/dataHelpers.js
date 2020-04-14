@@ -71,11 +71,21 @@ const forceArray = data => {
   return dataIsArray ? data : [data];
 };
 
+const getRandomInt = (min, max) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+const removeItemFromArr = (arr, pointToRemove) => arr.splice(pointToRemove, 1);
+
 module.exports = {
   convertToNumbers,
   sortObject,
   convertCardToNumber,
   cardAsExpected,
   cardsAsExpected,
-  forceArray
+  forceArray,
+  getRandomInt,
+  removeItemFromArr,
 };
