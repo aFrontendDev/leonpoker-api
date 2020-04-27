@@ -1,5 +1,6 @@
 const express = require('express');
 const { getWinner } = require("../functions/poker");
+const { checkDB } = require('../functions/db');
 
 const app = express();
 
@@ -24,6 +25,12 @@ app.all('*', (req, res, next) => {
 // create a route for the app
 app.get('/', (req, res) => {
   res.send('Hello World');
+});
+
+// check we can connect and get data from table
+app.get('/dbcheck', async (req, res) => {
+  const canConnect = await checkDB();
+  res.send(canConnect);
 });
 
 // testing only
