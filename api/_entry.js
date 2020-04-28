@@ -1,6 +1,6 @@
 const express = require('express');
 const { getWinner } = require("../functions/poker");
-const { checkDB, createUser, createGame, addPlayerToGame } = require('../functions/db');
+const { checkDB, createUser, createGame, addPlayerToGame, startGame } = require('../functions/db');
 
 const app = express();
 
@@ -43,7 +43,11 @@ app.post('/getwinner', (req, res) => {
 app.post('/newuser', async (req, res) => {
   const { name } = req.body;
   const result = await createUser({name});
-  res.status(200).send();
+  if (result) {
+    res.status(200).send();
+  } else {
+    res.status(501).send();
+  }
 });
 
 app.post('/newgame', async (req, res) => {
@@ -55,9 +59,18 @@ app.post('/newgame', async (req, res) => {
 app.post('/addplayertogame', async (req, res) => {
   const { playerID, gameID } = req.body;
   const result = await addPlayerToGame({playerID, gameID});
-  res.status(200).send();
+  if (result) {
+    res.status(200).send();
+  } else {
+    res.status(501).send();
+  }
 });
 
+app.post('/startgame', async (req, res) => {
+  const { gameID } = req.body;
+  const result = await startGame(gameID);
+  res.send(result);
+});
 
 /*
 Example call:
