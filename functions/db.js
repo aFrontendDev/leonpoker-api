@@ -1,9 +1,9 @@
 const AWS = require("aws-sdk");
-AWS.config.loadFromPath('awsconfig.json');
 const fs = require('fs');
 const { v4: uuidv4, v1: uuidv1 } = require('uuid'); // v4 random, v1 timestamp plus random
+const { makePack, dealHands } = require('../functions/poker');
 
-myConfig = new AWS.Config();
+AWS.config.loadFromPath('awsconfig.json');
 const dynamodb = new AWS.DynamoDB();
 const docClient = new AWS.DynamoDB.DocumentClient();
 
@@ -135,7 +135,6 @@ const startGame = async gameID => {
 
   // get game data
   const gameData = await getGameData(gameID);
-  console.log({gameData});
   if (!gameData) {
     console.log('no gameData')
     return false;
@@ -143,9 +142,15 @@ const startGame = async gameID => {
 
   const { players } = gameData || {};
   const chips = createGameChips(players);
+  const pack = makePack();
+  const dealtHands = dealHands(pack, players);
+  const { players: playerCards, cards } = dealtHands;
+
   const roundData = {
     1: {
       "players": players,
+      "playerHands": playerCards,
+      "pack": cards,
       "order": players,
       "bigBlind": 50,
       "smallBlind": 25,
@@ -166,7 +171,6 @@ const startGame = async gameID => {
       }
     }
   };
-  console.log('ROUND DATA', roundData);
 
   const params = {
     TableName: "games",
@@ -180,11 +184,9 @@ const startGame = async gameID => {
     },
     ReturnValues: "UPDATED_NEW"
   };
-  console.log('PARAMS', params)
 
   try {
     const result = await docClient.update(params).promise();
-    console.log('done', result);
     return true;
   } catch(err) {
     // TODO error logging

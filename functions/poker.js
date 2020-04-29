@@ -106,17 +106,27 @@ const getPlayersCards = (player, cards) => {
   const cardIndex = getRandomInt(0, highestCardIndex);
   const card = cards[cardIndex];
 
-  // Add card to players hand
-  if (player.hasOwnProperty('hand')) {
-    player['hand'].push(card);
+  let playerObj;
+  // is player an id? we want an object of shape: {user: 'userID'}
+  if (typeof player === 'string') {
+    playerObj = {
+      user: player
+    }
   } else {
-    player['hand'] = [card];
+    playerObj = player;
+  }
+
+  // Add card to players hand
+  if (playerObj.hasOwnProperty('hand')) {
+    playerObj['hand'].push(card);
+  } else {
+    playerObj['hand'] = [card];
   }
 
   // remove card from pack of cards
   removeItemFromArr(cards, cardIndex);
 
-  return player;
+  return playerObj;
 };
 
 // FUNCTION dealHands
@@ -136,7 +146,7 @@ const dealHands = (cards, players) => {
   let updatedPlayers = playersArr.map(player => getPlayersCards(player, cardsArr));
 
   // second deal
-  updatedPlayers = playersArr.map(player => getPlayersCards(player, cardsArr));
+  updatedPlayers = updatedPlayers.map(player => getPlayersCards(player, cardsArr));
 
   return {
     players: updatedPlayers,
