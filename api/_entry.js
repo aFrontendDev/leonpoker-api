@@ -1,6 +1,6 @@
 const express = require('express');
 const { getWinner } = require("../functions/poker");
-const { checkDB, createUser, createGame, addPlayerToGame, startGame } = require('../functions/db');
+const { checkDB, createUser, createGame, addPlayerToGame, startGame, addBet } = require('../functions/db');
 
 const app = express();
 
@@ -69,6 +69,13 @@ app.post('/addplayertogame', async (req, res) => {
 app.post('/startgame', async (req, res) => {
   const { gameID } = req.body;
   const result = await startGame(gameID);
+  res.send(result);
+});
+
+// playerID: '654123', gameID: '96394d10-8953-11ea-b947-716fbd70081b', matchedBet: true, raiseValue: 25
+app.post('/addbet', async (req, res) => {
+  const { playerID, gameID, matchedBet, raiseValue = 0 } = req.body;
+  const result = await addBet({playerID, gameID, matchedBet, raiseValue});
   res.send(result);
 });
 

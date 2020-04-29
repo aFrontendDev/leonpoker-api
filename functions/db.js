@@ -119,14 +119,194 @@ const getGameData = async gameID => {
   }
 
   return game;
-}
+};
 
 const createGameChips = players => {
   return players.reduce((res, player) => {
     res[player] = 2000;
     return res;
   }, {});
+};
+
+const getLastObjectItem = obj => {
+  if (!obj || typeof obj === 'undefined') {
+    return null;
+  }
+
+  const keys = Object.keys(obj);
+  const lastKey = keys[keys.length - 1];
+  return {
+    lastKey,
+    lastItem: obj[lastKey]
+  };
 }
+
+const addBet = async data => {
+  const { playerID, gameID, matchedBet, raiseValue } = data || {};
+  
+  // get game data
+  const gameData = await getGameData(gameID);
+  if (!gameData) {
+    // TODO error logging
+    console.log('no gameData')
+    return {
+      success: false,
+      errorMsg: 'Game not found',
+    };
+  }
+
+  const { players, playerChips, rounds } = gameData || {};
+  if (!players.includes(playerID)) {
+    // TODO error logging
+    console.log('player not in game')
+    return {
+      success: false,
+      errorMsg: 'Player not found in this game',
+    };
+  }
+
+  const { lastKey: latestRoundKey, lastItem: latestRound } = getLastObjectItem(rounds);
+  if (!latestRound) {
+    // TODO error logging
+    console.log('Couldnt get latest round')
+    return {
+      success: false,
+      errorMsg: 'Couldnt get latest round',
+    };
+  }
+
+  const { players: roundPlayers, pots } = latestRound;
+
+  if (!roundPlayers.includes(playerID)) {
+    // TODO error logging
+    console.log('player not in round')
+    return {
+      success: false,
+      errorMsg: 'Player not found in this round',
+    };
+  }
+
+  const { lastKey: latestPotKey, lastItem: latestPot } = getLastObjectItem(pots);
+  if (!latestPot) {
+    // TODO error logging
+    console.log('Couldnt get latest pot')
+    return {
+      success: false,
+      errorMsg: 'Couldnt get latest pot',
+    };
+  }
+
+  let { players: potPlayers, order: potOrder, playerBetting, currentPot, highestBet, betting } = latestPot;
+
+  if (!potPlayers.includes(playerID)) {
+    // TODO error logging
+    console.log('player not in pot')
+    return {
+      success: false,
+      errorMsg: 'Player not found in this pot',
+    };
+  }
+
+  const { lastKey: latestBettingKey, lastItem: latestBetting } = getLastObjectItem(betting);
+  if (!latestBetting) {
+    // TODO error logging
+    console.log('Couldnt get latest betting')
+    return {
+      success: false,
+      errorMsg: 'Couldnt get latest betting',
+    };
+  }
+
+  let { minBet, completed, nextToBet, bets } = latestBetting;
+  if (completed || playerID !== nextToBet) {
+    // TODO error logging
+    console.log('betting round completed, or player is not next to bet')
+    return {
+      success: false,
+      errorMsg: 'betting round completed, or player is not next to bet',
+    };
+  }
+
+  const overallBetValue = minBet + raiseValue;
+  const playersChips = playerChips[playerID];
+  if (overallBetValue > playersChips) {
+    // TODO error logging
+    console.log('Player does not have required chips')
+    return {
+      success: false,
+      errorMsg: 'Player does not have required chips',
+    };
+  }
+
+  // actually add bet now and update other areas
+
+  // deduct from playerChips
+  const newPlayerChipsTotal = playersChips - overallBetValue;
+  playerChips[playerID] = newPlayerChipsTotal;
+
+  // update overall playerBetting for this round
+  const playerBetTotal = playerBetting[playerID];
+  playerBetting[playerID] = playerBetTotal ? playerBetTotal + overallBetValue : overallBetValue;
+
+  // update currentPot
+  latestPot.currentPot = currentPot + overallBetValue;
+
+  // update highestBet
+  latestPot.highestBet = overallBetValue > highestBet ? overallBetValue : highestBet;
+
+  // update minBet
+  const updatedMinBet = overallBetValue > minBet ? overallBetValue : minBet;
+  latestBetting.minBet = updatedMinBet;
+
+  const lastPotPlayer = potOrder[potOrder.length - 1];
+  const playerPosition = potOrder.indexOf(playerID);
+  const playerIsLast = potOrder.length - 1 === playerPosition;
+  const nextPlayer = playerIsLast ? potOrder[0] : potOrder[playerPosition + 1];
+  const nextPlayerBet = bets[nextPlayer] ? bets[nextPlayer] : 0;
+
+  // update completed if needed
+  completed = nextPlayerBet < updatedMinBet ? false : true;
+
+  // update nextToBet if needed
+  latestBetting.nextToBet = nextPlayerBet < updatedMinBet ? nextPlayer : null;
+
+  // update bets with players bet
+  bets[playerID] = overallBetValue;
+
+  // latestRound - latestRoundKey
+  // latestPot - latestPotKey
+  // latestBetting - latestBettingKey
+
+  // return {
+  //   updatedMinBet,
+  //   updatedPot: currentPot + overallBetValue,
+  //   updatedHighestBet: overallBetValue > highestBet ? overallBetValue : highestBet,
+  //   updatedNextToBet: nextPlayerBet < updatedMinBet ? `nextPlayer is ${nextPlayer}` : 'null',
+  //   rounds
+  // };
+
+
+  const params = {
+    TableName: "games",
+    Key: {
+      "gameID": gameID,
+    },
+    UpdateExpression: "SET rounds = :a",
+    ExpressionAttributeValues: {
+      ":a": rounds
+    },
+    ReturnValues: "UPDATED_NEW"
+  };
+
+  try {
+    const result = await docClient.update(params).promise();
+    return true;
+  } catch(err) {
+    // TODO error logging
+    console.log('fail', err);
+    return false;
+  }
+};
 
 const startGame = async gameID => {
   if (!gameID || typeof gameID === 'undefined') {
@@ -170,18 +350,13 @@ const startGame = async gameID => {
       "pots": {
         1: {
           "players": players,
+          "order": players,
           "playerBetting": {
-						[smallBlindPlayer]: {
-							out: false,
-							bet: smallBlind,
-						},
-						[bigBlindPlayer]: {
-              out: false,
-							bet: bigBlind,
-            }
+						[smallBlindPlayer]: smallBlind,
+						[bigBlindPlayer]: bigBlind,
 					},
           "currentPot": bigBlind + smallBlind,
-          "highestBet": bigBlind,
+          "highestBet": bigBlind, // if a player goes all in or runs out of chips then players can only match for this pot. Extra will go into a new pot
           "betting": {
             1: {
               "minBet": bigBlind,
@@ -227,6 +402,7 @@ module.exports = {
   createGame,
   addPlayerToGame,
   startGame,
+  addBet,
 }
 
 /*
