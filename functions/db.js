@@ -145,6 +145,16 @@ const startGame = async gameID => {
   const pack = makePack();
   const dealtHands = dealHands(pack, players);
   const { players: playerCards, cards } = dealtHands;
+  const bigBlind = 50;
+  const smallBlind = bigBlind / 2;
+  const dealer = players[0];
+  const smallBlindPlayer = players.length > 2 ? players[1] : players[0];
+  const bigBlindPlayer = players.length > 2 ? players[2] : players[1];
+  const smallGameFirstBet = {
+    2: players[0],
+    3: players[0],
+  };
+  const firstBet = players.length > 3 ? players[3] : smallGameFirstBet[players.length];
 
   const roundData = {
     1: {
@@ -152,19 +162,35 @@ const startGame = async gameID => {
       "playerHands": playerCards,
       "pack": cards,
       "order": players,
-      "bigBlind": 50,
-      "smallBlind": 25,
+      "bigBlind": bigBlind,
+      "smallBlind": smallBlind,
+      "dealer": dealer,
+      "smallBlindPlayer": smallBlindPlayer,
+      "bigBlindPlayer": bigBlindPlayer,
       "pots": {
         1: {
           "players": players,
-          "currentPot": 0,
-          "highestBet": 0,
+          "playerBetting": {
+						[smallBlindPlayer]: {
+							out: false,
+							bet: smallBlind,
+						},
+						[bigBlindPlayer]: {
+              out: false,
+							bet: bigBlind,
+            }
+					},
+          "currentPot": bigBlind + smallBlind,
+          "highestBet": bigBlind,
           "betting": {
             1: {
-              "minBet": 50,
+              "minBet": bigBlind,
               "completed": false,
-              "nextToBet": players[0],
-              "bets": {}
+              "nextToBet": firstBet,
+              "bets": {
+                [smallBlindPlayer]: smallBlind,
+                [bigBlindPlayer]: bigBlind
+              }
             }
           }
         }
